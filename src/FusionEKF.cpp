@@ -37,6 +37,9 @@ FusionEKF::FusionEKF() {
    * TODO: Set the process and measurement noises
    */
 
+   H_laser_ << 1, 0, 0, 0,
+               0, 1, 0, 0;
+
 
 }
 
@@ -50,31 +53,36 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    * Initialization
    */
   if (!is_initialized_) {
-    /**
-     * TODO: Initialize the state ekf_.x_ with the first measurement.
-     * TODO: Create the covariance matrix.
-     * You'll need to convert radar from polar to cartesian coordinates.
-     */
+        /**
+         * TODO: Initialize the state ekf_.x_ with the first measurement.
+         * TODO: Create the covariance matrix.
+         * You'll need to convert radar from polar to cartesian coordinates.
+         */
 
-    // first measurement
-    cout << "EKF: " << endl;
-    ekf_.x_ = VectorXd(4);
-    ekf_.x_ << 1, 1, 1, 1;
+        // first measurement
+        cout << "EKF: " << endl;
+        ekf_.x_ = VectorXd(4);
+        //ekf_.x_ << 1, 1, 1, 1;
 
-    if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-      // TODO: Convert radar from polar to cartesian coordinates 
-      //         and initialize state.
+        if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
+          // TODO: Convert radar from polar to cartesian coordinates
+          //         and initialize state.
+          continue;
 
+        }
+        else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
+          // TODO: Initialize state.
+          ekf_.x_ = measurement_pack.raw_measurements_[0],
+                    measurement_pack.raw_measurements_[1],
+                    0,
+                    0;
+
+        }
+
+        // done initializing, no need to predict or update
+        is_initialized_ = true;
+        return;
     }
-    else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-      // TODO: Initialize state.
-
-    }
-
-    // done initializing, no need to predict or update
-    is_initialized_ = true;
-    return;
-  }
 
   /**
    * Prediction
@@ -100,12 +108,12 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    */
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-    // TODO: Radar updates
+      // TODO: Radar updates
 
-  } else {
-    // TODO: Laser updates
+    } else {
+      // TODO: Laser updates
 
-  }
+    }
 
   // print the output
   cout << "x_ = " << ekf_.x_ << endl;
