@@ -24,8 +24,10 @@ class KalmanFilter {
    * @param R_in Measurement covariance matrix
    * @param Q_in Process covariance matrix
    */
+
   void Init(Eigen::VectorXd &x_in, Eigen::MatrixXd &P_in, Eigen::MatrixXd &F_in,
             Eigen::MatrixXd &H_in, Eigen::MatrixXd &R_in, Eigen::MatrixXd &Q_in);
+  
 
   /**
    * Prediction Predicts the state and the state covariance
@@ -86,6 +88,7 @@ KalmanFilter::KalmanFilter() {
 
 KalmanFilter::~KalmanFilter() {}
 
+
 void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
                         MatrixXd &H_in, MatrixXd &R_in, MatrixXd &Q_in) {
   x_ = x_in;
@@ -96,16 +99,27 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
   Q_ = Q_in;
 }
 
+
 void KalmanFilter::Predict() {
   /**
    * TODO: predict the state
    */
+   x_ = F_ * x_;
+   MatrixXd Ft = F_.transpose();
+   P_ = F_ * P_ * Ft + Q_;
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
   /**
    * TODO: update the state by using Kalman Filter equations
    */
+   VectorXd z_pred = H_ * x_;
+   VectorXd y = z - z_pred;
+   MatrixXd Ht = H_.transpose();
+   MatrixXd S = H_ * P_ * Ht + R_;
+   MatrixXd Si = S.inverse();
+   MatrixXd PHt = P_ * Ht;
+   MatrixXd K = PHt * Si;
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {

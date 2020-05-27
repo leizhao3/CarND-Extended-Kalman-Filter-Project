@@ -17,6 +17,7 @@ using std::istringstream;
 using std::string;
 using std::vector;
 
+void print(vector<VectorXd> &a);
 
 int main() {
 
@@ -94,8 +95,28 @@ int main() {
         gt_values(2) = vx_gt;
         gt_values(3) = vy_gt;
 
-        //cout<<"gt_values"<<gt_values<<endl;
         ground_truth.push_back(gt_values);
+
+
+
+        // start filtering from the second frame
+        // (the speed is unknown in the first frame)
+        // Call ProcessMeasurement(meas_package) for Kalman filter
+        fusionEKF.ProcessMeasurement(meas_package);
+
+        VectorXd estimate(4);
+
+        double p_x = fusionEKF.ekf_.x_(0);
+        double p_y = fusionEKF.ekf_.x_(1);
+        double v1  = fusionEKF.ekf_.x_(2);
+        double v2 = fusionEKF.ekf_.x_(3);
+
+        estimate(0) = p_x;
+        estimate(1) = p_y;
+        estimate(2) = v1;
+        estimate(3) = v2;
+
+        estimations.push_back(estimate);
 
         ++i;
 
@@ -103,45 +124,24 @@ int main() {
 
     }
 
-    //cout<<"measurement_pack_list is"<<measurement_pack_list<<endl;
-    //cout<<"ground_truth is"<<ground_truth<<endl;
+    cout<<"estimations.size() is "<<estimations.size()<<endl;
+    cout<<"estimations is "<<endl;
+    print(estimations);
+    cout<<"ground_truth.size() is "<<ground_truth.size()<<endl;
+    VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
 
-
-  // call the ProcessingMeasurement() function for each measurement
-  size_t N = measurement_pack_list.size();
-  // start filtering from the second frame
-  // (the speed is unknown in the first frame)
-  for (size_t k = 0; k < N; ++k) {
-
-      // Call ProcessMeasurement(meas_package) for Kalman filter
-      fusionEKF.ProcessMeasurement(measurement_pack_list[k]);
-
-      VectorXd estimate(4);
-
-      double p_x = fusionEKF.ekf_.x_(0);
-      double p_y = fusionEKF.ekf_.x_(1);
-      double v1  = fusionEKF.ekf_.x_(2);
-      double v2 = fusionEKF.ekf_.x_(3);
-
-      estimate(0) = p_x;
-      estimate(1) = p_y;
-      estimate(2) = v1;
-      estimate(3) = v2;
-
-      estimations.push_back(estimate);
-
-
-
-
-  }
-
-  cout<<"estimations is "<<estimations<<endl;
-  cout<<"ground_truth is "<<ground_truth<<endl;
-  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
 
   if (in_file.is_open()) {
     in_file.close();
   }
 
   return 0;
+}
+
+
+void print(vector<VectorXd> &a) {
+
+    for(int i=0; i < a.size(); i++)
+      {cout << a[i] << ' ';}
+
 }

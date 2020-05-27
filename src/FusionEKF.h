@@ -28,7 +28,7 @@ class FusionEKF {
 
   /**
    * Kalman Filter update and prediction math lives in here.
-   */
+  */
   KalmanFilter ekf_;
 
   private:
@@ -49,7 +49,7 @@ class FusionEKF {
     float sigma_ay2;
 };
 
-
+#endif // FusionEKF_H_
 
 
 /*--------------------------start of cpp----------------------------------*/
@@ -87,7 +87,7 @@ FusionEKF::FusionEKF() {
   /**
    * TODO: Finish initializing the FusionEKF.
    * TODO: Set the process and measurement noises
-   */
+  */
    // laser measurement matrix
    H_laser_ = MatrixXd(2, 4);
    H_laser_ << 1, 0, 0, 0,
@@ -96,14 +96,6 @@ FusionEKF::FusionEKF() {
    // radar measurement matrix
    Hj_ = MatrixXd(3, 4);
 
-
-
-   // the initial transition matrix F_
-   ekf_.F_ = MatrixXd(4, 4);
-   ekf_.F_ << 1, 0, 1, 0,
-              0, 1, 0, 1,
-              0, 0, 1, 0,
-              0, 0, 0, 1;
 
     // state covariance matrix P_
     ekf_.P_ = MatrixXd(4, 4);
@@ -115,11 +107,7 @@ FusionEKF::FusionEKF() {
    // set the acceleration noise components, sigma_ax2, sigma_ay2
    sigma_ax2 = 9;
    sigma_ay2 = 9;
-
-
-
-
-}
+   }
 
 /**
  * Destructor.
@@ -131,36 +119,37 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    * Initialization
    */
   if (!is_initialized_) {
-        /**
-         * TODO: Initialize the state ekf_.x_ with the first measurement.
-         * TODO: Create the covariance matrix.
-         * You'll need to convert radar from polar to cartesian coordinates.
-         */
+      /**
+       * TODO: Initialize the state ekf_.x_ with the first measurement.
+       * TODO: Create the covariance matrix.
+       * You'll need to convert radar from polar to cartesian coordinates.
+      */
 
-        // first measurement
-        cout << "EKF initializing...." << endl;
+      // first measurement
+      // cout << "EKF initializing...." << endl;
 
-        if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-          // TODO: Initialize state.
-            ekf_.x_<<measurement_pack.raw_measurements_[0],
-                measurement_pack.raw_measurements_[1],
-                0,
-                0;
-            ekf_.H_ = H_laser_;
-            ekf_.R_ = R_laser_;
+      if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
+        // TODO: Initialize state.
+          ekf_.x_<<measurement_pack.raw_measurements_[0],
+              measurement_pack.raw_measurements_[1],
+              0,
+              0;
+          ekf_.H_ = H_laser_;
+          ekf_.R_ = R_laser_;
 
-        } else if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-          // TODO: Convert radar from polar to cartesian coordinates
-          //         and initialize state.
-          cout << "signal is from radar, pass for right now." <<endl;
-        }
+      } else if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
+        // TODO: Convert radar from polar to cartesian coordinates
+        //         and initialize state.
+        cout << "signal is from radar, pass for right now." <<endl;
+      }
 
-        previous_timestamp_ = measurement_pack.timestamp_;
+      previous_timestamp_ = measurement_pack.timestamp_;
 
-        // done initializing, no need to predict or update
-        is_initialized_ = true;
-        return;
+      // done initializing, no need to predict or update
+      is_initialized_ = true;
+      return;
     }
+    
 
     /**
      * TODO: Update the state transition matrix F according to the new elapsed time.
@@ -177,9 +166,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     // Modify the F matrix so that the time is integrated
     ekf_.F_(0, 2) = dt;
     ekf_.F_(1, 3) = dt;
-
-    sigma_ax2 = 9;
-    sigma_ay2 = 9;
 
     // set the process covariance matrix Q
     ekf_.Q_ <<  dt_4/4*sigma_ax2,   0,                  dt_3/2*sigma_ax2,   0,
@@ -219,5 +205,4 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     cout << "x_ = " << ekf_.x_ << endl;
     cout << "P_ = " << ekf_.P_ << endl;
 }
-
 
