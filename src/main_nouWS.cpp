@@ -45,7 +45,7 @@ int main() {
   string line;
   // set i to get only first 3 measurments
   int i = 0;
-  while (getline(in_file, line) && (i<=1)) {
+  while (getline(in_file, line) && (i<1)) {
 
         MeasurementPackage meas_package;
 
@@ -124,10 +124,10 @@ int main() {
 
     }
 
-    cout<<"estimations.size() is "<<estimations.size()<<endl;
-    cout<<"estimations is "<<endl;
-    print(estimations);
-    cout<<"ground_truth.size() is "<<ground_truth.size()<<endl;
+    //cout<<"estimations.size() is "<<estimations.size()<<endl;
+    //cout<<"estimations is "<<endl;
+    //print(estimations);
+    //cout<<"ground_truth.size() is "<<ground_truth.size()<<endl;
     VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
 
 

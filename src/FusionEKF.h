@@ -126,14 +126,15 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       */
 
       // first measurement
-      // cout << "EKF initializing...." << endl;
+      cout << "EKF is initializing...." << endl;
 
       if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
         // TODO: Initialize state.
-          ekf_.x_<<measurement_pack.raw_measurements_[0],
-              measurement_pack.raw_measurements_[1],
-              0,
-              0;
+          ekf_.x_ = MatrixXd(4, 1);
+          ekf_.x_<< measurement_pack.raw_measurements_[0],
+                    measurement_pack.raw_measurements_[1],
+                    0,
+                    0;
           ekf_.H_ = H_laser_;
           ekf_.R_ = R_laser_;
 

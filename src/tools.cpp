@@ -18,6 +18,8 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   // check the validity of the following inputs:
   //  * the estimation vector size should not be zero
   //  * the estimation vector size should equal ground truth vector size
+  cout<< "Calling the tools.cpp. \n";
+
   if(estimations.size() == 0)
   {
       cout<<"The estimations.size() CANNOT be 0. \n";
@@ -39,8 +41,8 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
     VectorXd residuals = estimations[i] - ground_truth[i];
     residuals = residuals.array() * residuals.array();
 
-    cout << "residuals.size() is "<<residuals.size() << endl;
-    cout << residuals << endl;
+    //cout << "residuals.size() is "<<residuals.size() << endl;
+    //cout << residuals << endl;
 
     rmse += residuals;
   }

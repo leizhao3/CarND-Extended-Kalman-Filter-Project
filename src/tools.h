@@ -56,6 +56,8 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   // check the validity of the following inputs:
   //  * the estimation vector size should not be zero
   //  * the estimation vector size should equal ground truth vector size
+  cout<< "Calling the tools.h. \n";
+
   if(estimations.size() == 0)
   {
       cout<<"The estimations.size() CANNOT be 0. \n";
