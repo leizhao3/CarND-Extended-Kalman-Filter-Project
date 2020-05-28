@@ -72,7 +72,7 @@ class KalmanFilter {
 /*--------------------------start of cpp----------------------------------*/
 
 
-
+#include <math.h>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -82,9 +82,7 @@ using Eigen::VectorXd;
  *   VectorXd or MatrixXd objects with zeros upon creation.
  */
 
-KalmanFilter::KalmanFilter() {
-
-}
+KalmanFilter::KalmanFilter() {}
 
 KalmanFilter::~KalmanFilter() {}
 
@@ -113,19 +111,58 @@ void KalmanFilter::Update(const VectorXd &z) {
   /**
    * TODO: update the state by using Kalman Filter equations
    */
-   VectorXd z_pred = H_ * x_;
-   VectorXd y = z - z_pred;
-   MatrixXd Ht = H_.transpose();
-   MatrixXd S = H_ * P_ * Ht + R_;
-   MatrixXd Si = S.inverse();
-   MatrixXd PHt = P_ * Ht;
-   MatrixXd K = PHt * Si;
+  VectorXd z_pred = H_ * x_;
+  VectorXd y = z - z_pred;
+  MatrixXd Ht = H_.transpose();
+  MatrixXd S = H_ * P_ * Ht + R_;
+  MatrixXd Si = S.inverse();
+  MatrixXd PHt = P_ * Ht;
+  MatrixXd K = PHt * Si;
+
+  //new estimate
+  x_ = x_ + (K * y);
+  long x_size = x_.size();
+  MatrixXd I = MatrixXd::Identity(x_size, x_size);
+  P_ = (I - K * H_) * P_;
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
   /**
    * TODO: update the state by using Extended Kalman Filter equations
    */
+  double px = x_[0]; //from prdict result
+  double py = x_[1]; //from prdict result
+  double vx = x_[2]; //from prdict result
+  double vy = x_[3]; //from prdict result
+
+  double rho = sqrt(px*px+py*py);
+  double phi = atan2(py, px);
+  double rho_dot = (px*vx+py*vy)/rho;
+
+  while(phi < -M_PI)
+  {
+    phi += phi + 2*M_PI;
+  }
+  while(phi > +M_PI)
+  {
+    phi -= phi + 2*M_PI;
+  }
+
+  VectorXd z_pred(3,1);
+  z_pred << rho, phi, rho_dot;
+  VectorXd y = z - z_pred;
+  MatrixXd Ht = H_.transpose();
+  MatrixXd S = H_ * P_ * Ht + R_;
+  MatrixXd Si = S.inverse();
+  MatrixXd PHt = P_ * Ht;
+  MatrixXd K = PHt * Si;
+
+  //new estimate
+  x_ = x_ + (K * y);
+  long x_size = x_.size();
+  MatrixXd I = MatrixXd::Identity(x_size, x_size);
+  P_ = (I - K * H_) * P_;
+
 }
 
 #endif // KALMAN_FILTER_H_

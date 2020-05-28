@@ -45,7 +45,8 @@ int main() {
   string line;
   // set i to get only first 3 measurments
   int i = 0;
-  while (getline(in_file, line) && (i<1)) {
+  while (getline(in_file, line) && (i<100)) {
+  //while (getline(in_file, line)) {
 
         MeasurementPackage meas_package;
 
