@@ -2,6 +2,9 @@
 #include <iostream>
 #include "Eigen/Dense"
 #include "tools.h"
+#include <math.h>
+#include <iomanip> 
+#include <ios> 
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -32,31 +35,34 @@ FusionEKF::FusionEKF() {
   /**
    * TODO: Finish initializing the FusionEKF.
    * TODO: Set the process and measurement noises
-   */
-   // laser measurement matrix
-   H_laser_ = MatrixXd(2, 4);
-   H_laser_ << 1, 0, 0, 0,
-               0, 1, 0, 0;
+  */
+  // laser measurement matrix
+  H_laser_ = MatrixXd(2, 4);
+  H_laser_ << 1, 0, 0, 0,
+              0, 1, 0, 0;
 
-   // radar measurement matrix
-   Hj_ = MatrixXd(3, 4);
-
-
-    // state covariance matrix P_
-    ekf_.P_ = MatrixXd(4, 4);
-    ekf_.P_<< 1, 0, 0, 0,
-              0, 1, 0, 0,
-              0, 0, 1000, 0,
-              0, 0, 0, 1000;
-
-   // set the acceleration noise components, sigma_ax2, sigma_ay2
-   sigma_ax2 = 9;
-   sigma_ay2 = 9;
+  // radar measurement matrix
+  Hj_ = MatrixXd(3, 4);
 
 
+  // state covariance matrix P_
+  ekf_.P_ = MatrixXd(4, 4);
+  ekf_.P_<< 1, 0, 0,    0,
+            0, 1, 0,    0,
+            0, 0, 1000, 0,
+            0, 0, 0,    1000;
 
+  // the initial transition matrix F_
+  ekf_.F_ = MatrixXd(4, 4);
+  ekf_.F_ <<  1, 0, 1, 0,
+              0, 1, 0, 1,
+              0, 0, 1, 0,
+              0, 0, 0, 1;
 
-}
+  // set the acceleration noise components, sigma_ax2, sigma_ay2
+  sigma_ax2 = 9.0;
+  sigma_ay2 = 9.0;
+  }
 
 /**
  * Destructor.
@@ -75,21 +81,25 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       */
 
       // first measurement
-      // cout << "EKF initializing...." << endl;
+      cout << "EKF is initializing...." << endl;
 
       if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
         // TODO: Initialize state.
-          ekf_.x_<<measurement_pack.raw_measurements_[0],
-              measurement_pack.raw_measurements_[1],
-              0,
-              0;
-          ekf_.H_ = H_laser_;
-          ekf_.R_ = R_laser_;
-
+        ekf_.x_ = MatrixXd(4, 1);
+        ekf_.x_<< measurement_pack.raw_measurements_[0],
+                  measurement_pack.raw_measurements_[1],
+                  0,
+                  0;
       } else if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
         // TODO: Convert radar from polar to cartesian coordinates
         //         and initialize state.
-        cout << "signal is from radar, pass for right now." <<endl;
+        ekf_.x_ = MatrixXd(4, 1);
+        float rho = measurement_pack.raw_measurements_[0]; 
+        float phi = measurement_pack.raw_measurements_[1]; //unit: rad
+        ekf_.x_<< rho*cos(phi),
+                  phi*sin(phi),
+                  0,
+                  0;
       }
 
       previous_timestamp_ = measurement_pack.timestamp_;
@@ -98,6 +108,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       is_initialized_ = true;
       return;
     }
+    
 
     /**
      * TODO: Update the state transition matrix F according to the new elapsed time.
@@ -116,6 +127,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     ekf_.F_(1, 3) = dt;
 
     // set the process covariance matrix Q
+    ekf_.Q_ = MatrixXd(4, 4);
     ekf_.Q_ <<  dt_4/4*sigma_ax2,   0,                  dt_3/2*sigma_ax2,   0,
                 0,                  dt_4/4*sigma_ay2,   0,                  dt_3/2*sigma_ay2,
                 dt_3/2*sigma_ax2,   0,                  dt_2*sigma_ax2,     0,
@@ -140,16 +152,36 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     */
 
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-        // TODO: Radar updates
-        //ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+      // TODO: Radar updates
+      ekf_.H_ = tools.CalculateJacobian(ekf_.x_);
+      ekf_.R_ = R_radar_;
+      ekf_.UpdateEKF(measurement_pack.raw_measurements_);
 
     } else {
       // TODO: Laser updates
+      ekf_.H_ = H_laser_;
+      ekf_.R_ = R_laser_;
       ekf_.Update(measurement_pack.raw_measurements_);
 
     }
 
     // print the output
-    cout << "x_ = " << ekf_.x_ << endl;
-    cout << "P_ = " << ekf_.P_ << endl;
+    cout << "x_ = " << endl;
+    for(int i=0; i<4; i++)
+    {
+       cout << ekf_.x_[i] << endl;
+    }
+
+    cout << "P_ = " << endl;
+    const int width = 15;
+    for(int i=0; i<4; i++)
+    {
+      for(int j=0; j<4; j++)
+      {
+        cout <<std::setw(width)<< ekf_.P_(i,j);
+      }
+      cout << endl;
+    }
+    cout << endl;
+
 }
