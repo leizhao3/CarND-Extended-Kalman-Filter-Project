@@ -115,8 +115,8 @@ FusionEKF::FusionEKF() {
               0, 0, 0, 1;
 
   // set the acceleration noise components, sigma_ax2, sigma_ay2
-  sigma_ax2 = 9.0;
-  sigma_ay2 = 9.0;
+  sigma_ax2 = 9.f;
+  sigma_ay2 = 9.f;
   }
 
 /**

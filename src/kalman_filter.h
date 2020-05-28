@@ -67,6 +67,7 @@ class KalmanFilter {
   Eigen::MatrixXd R_;
 };
 
+#endif // KALMAN_FILTER_H_
 
 
 /*--------------------------start of cpp----------------------------------*/
@@ -165,4 +166,3 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
 }
 
-#endif // KALMAN_FILTER_H_
