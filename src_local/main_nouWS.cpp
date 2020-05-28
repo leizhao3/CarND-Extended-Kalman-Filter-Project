@@ -35,7 +35,7 @@ int main() {
   vector<VectorXd> ground_truth;
 
   // hardcoded input file with laser and radar measurements
-  string in_file_name_ = "/Volumes/Transcend/Academic/Self-DrivingCarEngineer/Project5_ExtendedKalmanFilters/CarND-Extended-Kalman-Filter-Project/src/obj_pose-laser-radar-synthetic-input.txt";
+  string in_file_name_ = "/Volumes/Transcend/Academic/Self-DrivingCarEngineer/Project5_ExtendedKalmanFilters/CarND-Extended-Kalman-Filter-Project/src_local/obj_pose-laser-radar-synthetic-input.txt";
   ifstream in_file(in_file_name_.c_str(), ifstream::in);
 
   if (!in_file.is_open()) {
