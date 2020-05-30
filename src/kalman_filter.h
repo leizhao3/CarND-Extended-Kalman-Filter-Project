@@ -46,6 +46,17 @@ class KalmanFilter {
    */
   void UpdateEKF(const Eigen::VectorXd &z);
 
+  /**
+   * Normalize the angle for radar measurement
+   */
+  void NormalizeAngle(double& angle);
+
+  /**
+   * Update the estimate for both Update & UpdateEKF.
+   */
+  void UpdateCommon(Eigen::VectorXd& y);
+
+
   // state vector
   Eigen::VectorXd x_;
 
